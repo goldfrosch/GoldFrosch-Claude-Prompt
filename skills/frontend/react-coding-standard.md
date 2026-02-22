@@ -72,6 +72,12 @@ Standards focused on design reasoning and architectural decision criteria for Re
 - 무분별한 prefetch는 지양한다.
 - 마케팅 페이지 등 변동이 잦은 영역은 신중히 판단한다.
 
+### 캐시 무효화·부수 동작
+
+- `useQueryClient()`는 컴포넌트나 페이지에서 직접 호출하지 않는다.
+- 캐시 무효화(`invalidateQueries`, `resetQueries` 등)와 그에 딸린 부수 동작은 별도 훅 내부에서만 다루고, 해당 훅을 통해 필요한 함수만 노출한다.
+- 컴포넌트·페이지는 그 훅이 반환한 API만 사용하고, queryKey·무효화 범위 등 세부 사항은 훅 안에서만 관리한다.
+
 ---
 
 ## State Management Policy
