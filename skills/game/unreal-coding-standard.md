@@ -53,7 +53,7 @@ Standards for readable, maintainable Unreal Engine C++ code based on Minimal Con
 
 ### 기본 원칙
 
-- 모든 멤버 변수는 private
+- 웬만한 값 정의는 private으로 둔다. (멤버 변수, 설정값, 내부 상태 등)
 - 외부 읽기 접근은 Getter를 통해서만 허용
 - 외부 변경은 명시적 Setter 또는 상태 변경 메서드를 통해서만 허용
 - 외부에서 직접 값 변경 금지
@@ -85,6 +85,18 @@ Standards for readable, maintainable Unreal Engine C++ code based on Minimal Con
 - 인터페이스는 I prefix
 - Delegate는 On + Verb 형식 사용
 
+### C++ 파일 규칙
+
+- C++ 소스/헤더 파일 생성 시 파일명 prefix에 프로젝트명을 붙이지 않는다.
+- 예: `ProjectAnvilCraftingSubsystem.h` 대신 `CraftingSubsystem.h` 사용.
+
+### 함수 인자 규칙 (const reference)
+
+- **구조체/클래스 타입** (FString, FName, FText, FVector 등)은 인자를 **const reference**로 받는다.
+  - 예: `void SetRowName(const FName& InRowName);`, `void LoadTable(const FString& Path);`
+- **원시 타입** (int, float, bool, uint8 등)은 값으로 전달해도 된다.
+- 복사 비용을 줄이고 불필요한 임시 객체 생성을 피하기 위함.
+
 ---
 
 ## UPROPERTY Exposure Policy
@@ -111,6 +123,21 @@ Standards for readable, maintainable Unreal Engine C++ code based on Minimal Con
 - 계산 결과
 - 시스템 내부 플래그
 
+### UCLASS / UFUNCTION 최소화
+
+- 불필요한 Category, Blueprintable 등은 작성하지 않는다.
+- 최대한 C++에서 처리할 수 있는 것은 블루프린트 노출을 늘리지 않는다.
+- Blueprintable, BlueprintReadWrite, Category 지정은 필요한 경우에만 사용한다.
+
+---
+
+## UI Widget Binding Policy
+
+### 기본 원칙
+
+- UI 위젯 바인딩 시에는 Optional이 아닌 BindWidget을 사용한다.
+- BindWidgetOptional은 사용하지 않는다. 바인딩할 위젯은 반드시 블루프린트에 존재해야 한다.
+
 ---
 
 ## Pointer Policy
@@ -136,15 +163,16 @@ Standards for readable, maintainable Unreal Engine C++ code based on Minimal Con
 
 ### 기본 원칙
 
+- **DataTable 접근은 DataTableManager(FDataTableManager)를 통해서만 수행한다.** 다른 클래스에서 UDataTable을 보유하거나 직접 Load/FindRow 하지 않는다.
 - 데이터 테이블 접근 로직을 분산시키지 않는다.
-- 데이터 조회는 전용 Helper 클래스를 통해 수행한다.
+- 데이터 조회는 전용 Helper 클래스(DataTableManager)를 통해 수행한다.
 - DataTable 직접 접근 코드를 여러 클래스에 중복 작성하지 않는다.
 - 데이터 구조 변경 시 수정 범위를 최소화한다.
 
 ### 설계 기준
 
-- DataTable 관련 로직은 하나의 책임 단위로 관리한다.
-- Row 탐색, 캐싱, 변환 로직을 분리한다.
+- DataTable 관련 로직은 하나의 책임 단위(DataTableManager)로 관리한다.
+- Row 탐색, 캐싱, 변환 로직을 DataTableManager에 분리한다.
 - 게임 로직에서 DataTable 구조를 직접 참조하지 않도록 한다.
 
 ---
